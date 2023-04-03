@@ -27,6 +27,11 @@ public record CurrencyConversionController() {
         ResponseEntity<CurrencyConversion> responseEntity = new RestTemplate().getForEntity
                 ("http://localhost:8000/currency-exchange/from/{from}/to/{to}",
                         CurrencyConversion.class, uriVariables);
-        return new CurrencyConversion(1000L, from, to, quantity, BigDecimal.ONE, BigDecimal.ONE, "");
+        CurrencyConversion currencyConversion = responseEntity.getBody();
+
+        return new CurrencyConversion(currencyConversion.id(), from, to,
+                quantity, currencyConversion.conversionMultiple(),
+                quantity.multiply(currencyConversion.conversionMultiple()),
+                currencyConversion.environment());
     }
 }
