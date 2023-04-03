@@ -10,11 +10,10 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 
 @RestController
-public record CurrencyConversionController() {
+public record CurrencyConversionController(CurrencyExcahngeProxy currencyExcahngeProxy) {
 
     @GetMapping("/currency-conversion/from/{from}/to/{to}/quantity/{quantity}")
-
-    public CurrencyConversion currencyConversion(
+    public CurrencyConversion calculateCurrencyConversion(
             @PathVariable String from,
             @PathVariable String to,
             @PathVariable BigDecimal quantity
@@ -32,6 +31,21 @@ public record CurrencyConversionController() {
         return new CurrencyConversion(currencyConversion.id(), from, to,
                 quantity, currencyConversion.conversionMultiple(),
                 quantity.multiply(currencyConversion.conversionMultiple()),
-                currencyConversion.environment());
+                currencyConversion.environment() + " rest template");
+    }
+
+    @GetMapping("/currency-conversion-feign/from/{from}/to/{to}/quantity/{quantity}")
+    public CurrencyConversion calculateCurrencyConversionFeign(
+            @PathVariable String from,
+            @PathVariable String to,
+            @PathVariable BigDecimal quantity
+    ) {
+
+        CurrencyConversion currencyConversion = currencyExcahngeProxy.retrieveExchangeValue(from,to);
+
+        return new CurrencyConversion(currencyConversion.id(), from, to,
+                quantity, currencyConversion.conversionMultiple(),
+                quantity.multiply(currencyConversion.conversionMultiple()),
+                currencyConversion.environment() + " feign");
     }
 }
